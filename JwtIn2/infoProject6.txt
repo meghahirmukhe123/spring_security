@@ -1,0 +1,3 @@
+created 2 services and tried to communicate them by feign client.
+tried to get all student info and result of all students at a time.
+-added JWT implmentation in student service
