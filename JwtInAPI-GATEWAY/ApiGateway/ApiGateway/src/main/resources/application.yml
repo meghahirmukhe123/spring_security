@@ -1,0 +1,58 @@
+server:
+  port: 3003
+  
+  
+spring:
+  application:
+    name: API-GATEWAY
+  
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+    
+
+    
+
+
+  cloud:
+    gateway:
+      routes:
+      - id: STUDENT-SERVICE 
+        uri: lb://STUDENT-SERVICE 
+        predicates:
+        - Path= /stu/**
+        filters:
+        - AuthenticationFilter
+      
+        
+      - id: STUDENTRESULT-SERVICE 
+        uri: lb://STUDENTRESULT-SERVICE 
+        predicates:
+        - Path= /result,/result/examid/**,/result/stuid/**
+        filters:
+        - AuthenticationFilter
+        
+      - id: IDENTITY-SERVICE   
+        uri: lb://IDENTITY-SERVICE  
+        predicates:
+        - Path= /auth/**,/auth/register,/auth/token
+        
+
+    
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+      
+
+      
+
+  
+
+      
+
+      
