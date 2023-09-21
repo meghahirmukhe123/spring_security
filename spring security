@@ -1,0 +1,169 @@
+formating short cut= ctr+shift+f
+
+____________________________________________________________________________________
+<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.1.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+</parent>
+
+
+
+<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.5.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+_____________________________________________________________________________________________________
+use of
+@Bean  
+public PasswordEncoder password()
+{
+   return NoOpPasswordEncoder.getInstance();    
+}
+=> //The @Bean annotation is used in Spring to indicate that a method should be treated as a bean definition. 
+When a method is annotated with @Bean, it tells Spring that the return value of that method should be registered as a bean in the application context.
+//NoOpPasswordEncoder is a password encoder implementation that does not perform any encoding. It simply returns the provided password as is. 
+This approach is not recommended for production use because it does not provide any security against password attacks.
+//Instead, you should consider using a stronger password encoder, such as BCryptPasswordEncoder. Here's an updated example:
+ 
+@Bean
+public PasswordEncoder passwordEncoder() 
+{
+        return new BCryptPasswordEncoder();
+    }
+________________________________________________________________________________________________________
+
+//Authorization is also called as access control
+
+
+#Architecture of Authentication
+1.when we hit url in server dispatcher servelet initializes first which is our front
+controller.
+
+2.through that front controller request is deligate to ramaining controller.
+(once frontend controller receive request it will decide to which controller that 
+request should pass so that that controller can give output of that request)
+
+3. In Spring Security
+  a]authenticationfilter(set of filter chain) will receive the request from user.
+  -It will check till it get match with the authenticationfilter provided by us.
+  for ex: we have implimented CSRF so authenticationfilter will check till it will
+  get CSRF and once it gets it will create one object of that particular authenticationfilter .
+
+4.Created object will pass to AuthenticationManager(it is interface).
+-By that createdd object it get call method of AuthenticationManager.
+-return type of that method is authentication.
+
+5.The created instance from AuthenticationManager will deligate to AuthenticationProvider(it is interface).
+
+6.UserDeatailsService and PasswordEncoder are the components.
+
+7.AuthenticationProvider will validate the user request throgh UserDeatailsService
+and PasswordEncoder.
+
+8.Again that object went to AuthenticationProvider then AuthenticationManager then authenticationfilter then to securityContext.
+______________________________________________________________________________________________________________________________________________
+//AuthenticationManager has only one method
+
+public interface AuthenticationManager
+{
+Authentication authentication(Authentication authentication)
+  throws AuthenticationException;
+}
+_______________________________________________________________________
+//in sprint security user is called as Principal.
+
+-AuthenticationProvider uses "UserDetailsService" to load "UserDetails" and 
+return authenticated user.
+
+-Default authentication filter is "BasicAuthenticationFilter".
+
+-UserDetailsService as method "loadUserByUsername(String username)"
+  1.getUsername
+  2.getPassword
+
+-InMemoryDetailsManager implements UserDetailsManager
+-UserDetailsManager extends UserDetailsService.
+-InMemoryDetailsManager has method .creatUser
+_____________________________________________________________________________________________
+-requestMatchers is used while we have to restrict access acc. to role.
+Synatx:
+//for having single role
+requestMatchers(<<add Http method to match on>>,<<add path to match on>>).hasRole(<<authorized role>>)
+    
+//for multiple role
+requestMatchers(<<add Http method to match on>>,<<add path to match on>>).hasAnyRole(<<list of authorized role>>)
+    
+ex:
+requestMatchers(HttpMethod.GET,"/api/employees").hasRole("Employee");
+requestMatchers(HttpMethod.GET,"/api/employees/employeeId").hasRole("Employee");
+
+______________________________________________________________________________
+//CSRF-cross site request forgery
+//CORS-Cross origin resource sharing
+
+//to connect two tables (basic table and authority table from database)
+
+@Bean
+public UserDetailsManager userDetailsManager(DataSource datasource)
+{
+  return new JdbcUserDetailsManager(datasource);
+}
+ 
+
+_________________________________________________________________________________________________________________________________
+
+//JWT(json web token)
+-it contains 3 parts
+ 1.Header-it contain type of algorithm and which type token we need.
+ 2.Payload - it contain actual info to generate token
+ 3.Verify signature - it validate token by giving secreat.
+______________________________________________________________________________________________________________________________________________
+
+        @Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration auth) throws Exception
+	{
+		return auth.getAuthenticationManager();
+	}
+
+-we have used this because if we have not declare this then any user can get token after passing their username and password.to protect this we have use above
+configuration
+
+
+_______________________________________________________________________________________________________________________________
+
+//dependacies for jwt security
+<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.9.1</version>
+		</dependency>
+<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+			<version>3.1.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		
+		
+		
+		
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+		</dependency>
+
+
+
+
+  
+
